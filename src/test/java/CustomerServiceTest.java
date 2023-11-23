@@ -24,7 +24,7 @@ public class CustomerServiceTest {
      * Тестирование добавления покупателя
      */
     @Test
-    public void testAddCustomer() {
+    public void testAddCustomer() throws Exception {
         when(customerDaoMock.save(any(Customer.class)))
                 .thenReturn(Boolean.TRUE);
 
@@ -42,7 +42,7 @@ public class CustomerServiceTest {
      * Тестирование отсутствия сохранения при добавлении покупателя с таким же телефоном
      */
     @Test
-    public void testNotSaveCustomerWithSamePhone() {
+    public void testNotSaveCustomerWithSamePhone() throws Exception {
         when(customerDaoMock.exists(any(String.class))).thenReturn(Boolean.TRUE);
 
         Customer customer = new Customer(0, "11-11-11");
@@ -53,7 +53,7 @@ public class CustomerServiceTest {
      * Показательный пример: использование класса Answer, для установки id
      */
     @Test
-    public void testAddCustomerWithId() {
+    public void testAddCustomerWithId() throws Exception {
 
         // Using Answer to set an id to the customer which is passed in as a parameter to the mock method.
         when(customerDaoMock.save(any(Customer.class)))
@@ -81,15 +81,18 @@ public class CustomerServiceTest {
 
     /**
      * Показательный пример: Кинуть исключение из mock объекта
+     * и проверить, что оно обработано в нашем сервисе
      */
     @Test
     public void testAddCustomerThrowsException() {
         when(customerDaoMock.save(any(Customer.class)))
                 .thenThrow(RuntimeException.class);
 
-        Assertions.assertThrows(RuntimeException.class, () -> {
+        Exception exception = Assertions.assertThrows(Exception.class, () -> {
             Customer customer = new Customer(0, "11-11-11");
             customerService.addCustomer(customer);
         });
+        // Проверка сообщения об ошибке (что это человекочитаемая ошибка)
+        Assertions.assertEquals("Не удалось добавить покупателя", exception.getMessage());
     }
 }
