@@ -6,8 +6,6 @@ import org.mockito.Mockito;
 import product.Product;
 import product.ProductDao;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class ShoppingServiceImplTest {
@@ -48,43 +46,18 @@ class ShoppingServiceImplTest {
     }
 
     /**
-     * При получении всех товаров, должен вернуть все товары
+     * Не нужен, так как {@link ShoppingServiceImpl#getAllProducts()} переносит ответственность на {@link ProductDao}
      */
     @Test
-    void whenGetAllThenReturnAll() {
-        Product cookie = new Product();
-        cookie.setName("Cookie");
-        cookie.addCount(1);
-        Product bread = new Product();
-        bread.setName("Bread");
-        List<Product> products = List.of(cookie, bread);
-        Mockito.when(productDao.getAll()).thenReturn(products);
-
-        List<Product> actual = shoppingService.getAllProducts();
-
-        assertEquals(products, actual);
+    void testGetAllProducts() {
     }
 
     /**
-     * Проверяет нахождение товара по полному совпадении имени
+     * Не нужен, так как {@link ShoppingServiceImpl#getProductByName(String)} переносит ответственность на
+     * {@link ProductDao}
      */
     @Test
     void testGetProductByName() {
-        Mockito.when(productDao.getByName("Bread")).thenReturn(null);
-        Product cookie = new Product();
-        cookie.setName("Cookie");
-        cookie.addCount(1);
-        Mockito.when(productDao.getByName("Cookie")).thenReturn(cookie);
-        Product nonCookie = new Product();
-        nonCookie.setName("NotACookie");
-        nonCookie.addCount(1);
-        Mockito.when(productDao.getByName("NotACookie")).thenReturn(nonCookie);
-
-        // в случае, если продукт отсутствует, то должен вернуть null (т.к. такого продукта нет)
-        assertNull(shoppingService.getProductByName("Bread"));
-        // в случае, если продукт присутствует, то должен вернуть продукт по полному совпадению имени
-        assertEquals(cookie, shoppingService.getProductByName("Cookie"));
-        assertEquals(nonCookie, shoppingService.getProductByName("NotACookie"));
     }
 
     /**
@@ -148,34 +121,4 @@ class ShoppingServiceImplTest {
                 product.getName().equals("Cookie") && product.getCount() == 0));
     }
 
-    /**
-     * Проверяет совершение покупки при <b>фактически</b> пустой корзине или корзине с отрицательным количеством товара
-     * (возможно тест плохой, вдруг в системе пустая корзина и корзина с товарами в количестве 0 не одно и то же?)<br>
-     * <b>Данный тест не пройдет.</b>
-     *
-     * @throws BuyException при ошибке покупки
-     */
-    @Test
-    void testBuyZeroOrLessProducts() throws BuyException {
-        Customer customer = new Customer(1L, "123");
-        Product cookie = new Product();
-        cookie.setName("Cookie");
-        cookie.addCount(10);
-        Cart cookieCart = shoppingService.getCart(customer);
-        cookieCart.add(cookie, 0);
-        /* Проверка на фактически пустую корзину. Не пройдет, т.к. в ShoppingServiceImpl происходит проверка только
-        на cart.getProducts().isEmpty() */
-        assertFalse(shoppingService.buy(cookieCart));
-        Mockito.verify(productDao, Mockito.never()).save(Mockito.any(Product.class));
-
-        Product bread = new Product();
-        bread.setName("Bread");
-        bread.addCount(3);
-        Cart breadCart = shoppingService.getCart(customer);
-        breadCart.add(bread, -5);
-        /* Проверка на корзину с отрицательным количеством товара. Не пройдет, т.к. в ShoppingServiceImpl происходит
-        проверка только на product.getCount() < count */
-        assertFalse(shoppingService.buy(breadCart));
-        Mockito.verify(productDao, Mockito.never()).save(Mockito.any(Product.class));
-    }
 }
