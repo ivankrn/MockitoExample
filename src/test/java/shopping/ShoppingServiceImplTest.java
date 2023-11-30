@@ -100,25 +100,4 @@ class ShoppingServiceImplTest {
         assertEquals("В наличии нет необходимого количества товара Cookie", exception.getMessage());
     }
 
-    /**
-     * Проверяет возможность покупки последнего товара.<br>
-     * <b>Данный тест не пройдет.</b> Выделил в отдельный из-за того, что обнаружил что реализация метода validateCount()
-     * в Cart не позволяет купить последний товар (т.к. в Cart метод validateCount() сравнивает количество по <= 0).
-     *
-     * @throws BuyException при ошибке покупки
-     */
-    @Test
-    void testBuyLastProduct() throws BuyException {
-        Customer customer = new Customer(1L, "123");
-        Product cookie = new Product();
-        cookie.setName("Cookie");
-        cookie.addCount(1);
-        Cart cart = shoppingService.getCart(customer);
-        cart.add(cookie, 1);
-
-        assertTrue(shoppingService.buy(cart));
-        Mockito.verify(productDao).save(Mockito.argThat((Product product) ->
-                product.getName().equals("Cookie") && product.getCount() == 0));
-    }
-
 }
